@@ -2,7 +2,9 @@
 This repo presents codes for generating results with phylogenetic manifold regularization presented in the paper "Phylogenetic Manifold Regularization: Asemi-supervised approach to predict transcriptionfactor binding sites"
 
 ## Dependencies
-PhyloReg requires Python 3.7.3. The dependencies can be installed by running
+PhyloReg requires Python 3.7.3. 
+
+The dependencies can be installed by running
 
 `pip install -R Requirements.txt`
 
