@@ -1,16 +1,8 @@
-# import transformers
-# from transformers import AdamW, get_linear_schedule_with_warmup
 import torch
 import numpy as np
 import pandas as pd
-# import seaborn as sns
-# from pylab import rcParams
-# import matplotlib.pyplot as plt
-# from matplotlib import rc
-# from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from collections import defaultdict
-# from textwrap import wrap
 from torch import nn, optim
 from torch.utils.data import Dataset, DataLoader
 import swifter, pickle
@@ -30,7 +22,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 input_train = sys.argv[1]
 input_val = sys.argv[2]
 input_test = sys.argv[3]
-# ortho_fname = sys.argv[2]
 BATCH_SIZE = int(sys.argv[4])
 EPOCHS = int(sys.argv[5])
 model_pth = sys.argv[6]
@@ -38,7 +29,6 @@ beta = float(sys.argv[7])
 ITR = int(sys.argv[8])
 pred_file = sys.argv[9]
 
-# O_CTR = sys.argv[6]
 
 class SequenceDataset(Dataset):
     def __init__(self, features, rev_comp_features, targets):
@@ -78,12 +68,6 @@ class OrthoSequenceDataset(Dataset):
         label_id = self.orthologs[item]['id'] if 'id' in self.orthologs[item].keys() else -1
 
         return {
-            # 'feature': torch.tensor(feature, dtype=torch.float),
-            # 'feature_rev_comp': torch.tensor(feature_rev_comp, dtype=torch.float),
-            # 'c_id': torch.tensor(c_id),
-            # 'c_id_map': torch.tensor(c_id_map),
-            # 'p_id': torch.tensor(p_id),
-            # 'p_id_map': torch.tensor(p_id_map),
             'sequences': sequences,
             'species': self.orthologs[item]['species'],
             'label': torch.tensor(label, dtype=torch.long),
@@ -146,8 +130,6 @@ def get_df(fname, species='hg38', mode=''):
 
     df['fixed_len_seq'] = df[2]. \
         swifter.apply(lambda x: x + ('P' * (1000 - len(x))) if len(x) <= 1000 else x[:1000])
-    # df['fixed_len_seq'] = df[2]. \
-    #   swifter.apply(lambda x: x + ('P'* (1000-len(x))) if len(x)<=1000 else x[(len(x)-1000)//2:((len(x)-1000)//2)+1000])
 
     # get features
     df['features'] = df['fixed_len_seq']. \
@@ -162,70 +144,11 @@ def get_df(fname, species='hg38', mode=''):
 
     df['rev_comp_fixed_len_seq'] = df['rev_comp']. \
         swifter.apply(lambda x: x + ('P' * (1000 - len(x))) if len(x) <= 1000 else x[:1000])
-    # df['rev_comp_fixed_len_seq'] = df['rev_comp']. \
-    #   swifter.apply(lambda x: x + ('P'* (1000-len(x))) if len(x)<=1000 else x[(len(x)-1000)//2:((len(x)-1000)//2)+1000])
 
     df['rev_comp_features'] = df['rev_comp_fixed_len_seq']. \
         swifter.apply(lambda row: np.array([mapper[item] for item in row], dtype=np.bool_).reshape(-1, 4).T)
 
     return df
-#
-# # print(df[2].values[0])
-# # print(df['features'].values[0])
-# # exit(0)
-#
-# df['chr'] = df[0]. \
-#     swifter.apply(lambda x: x.split(':')[2])
-#
-# print('df:', df.head())
-# print(df[2].values[0])
-# print(df['rev_comp'].values[0])
-# print(df['features'].values[0])
-# print(df['rev_comp_features'].values[0])
-# # exit(0)
-#
-# val_chr_list = ['chr11',
-#                 # 'chr3', 'chr5', 'chr7', 'chr10',
-#                 # 'chr12', 'chr14', 'chr16', 'chr18',
-#                 # 'chr20', 'chrX'
-#                 ]
-#
-# print('chr uniq:', df['chr'].unique())
-# # create df train
-# df_train = df[~df['chr'].isin(val_chr_list)]
-# print('df_train:', df_train.shape)
-#
-# # df_train_pos = df_train[df_train['label']==1]
-# # df_train_neg = df_train[df_train['label']==0]
-# #
-# # print('df_train_pos:', df_train_pos.shape)
-# # print('df_train_neg:', df_train_neg.shape)
-# #
-# # df_train_neg = df_train_neg.sample(n=df_train_pos.shape[0], random_state=42)
-# # print('df_train_pos:', df_train_pos.shape)
-# # print('df_train_neg:', df_train_neg.shape)
-#
-# # create df validation
-# df_val = df[df['chr'].isin(val_chr_list)]
-# print('df_val:', df_val.shape)
-# # exit(0)
-#
-# # remove not req df
-# del df
-
-
-# df_train, df_test = train_test_split(
-#   df,
-#   test_size=0.2,
-#   random_state=RANDOM_SEED
-# )
-# df_val, df_test = train_test_split(
-#   df_test,
-#   test_size=0.5,
-#   random_state=RANDOM_SEED
-# )
-#
-# print(df_train.shape, df_val.shape, df_test.shape)
 
 # train_df = get_df(input_train, mode='train')
 train_df = get_df(input_train)
@@ -327,20 +250,6 @@ val_data_loader = create_data_loader(val_df, BATCH_SIZE)
 # test_data_loader = create_data_loader(test_df, BATCH_SIZE)
 
 
-# test_data_loader = create_data_loader(df_test, BATCH_SIZE)
-
-# # print('train_data_loader:', train_data_loader); exit(0)
-#
-# data = next(iter(train_data_loader))
-# print(data.keys()); #exit(0)
-# # dict_keys(['review_text', 'input_ids', 'attention_mask', 'targets'])
-# # print(data['input_ids'][0,:])
-# print(data['review_text'].shape)
-# print(data['review_text_rev_comp'].shape)
-# print(data['targets'].shape)
-## exit(0)
-
-
 class FactorNet(nn.Module):
 
     def __init__(self, device):
@@ -378,19 +287,6 @@ class FactorNet(nn.Module):
         self.fc2 = nn.Linear(128, 1)
 
         self.sigmoid = nn.Sigmoid()
-
-        # Convolution1D(input_dim=4, nb_filter=32,
-        #               filter_length=26, border_mode='valid', activation='relu',
-        #               subsample_length=1),
-        # Dropout(0.1),
-        # TimeDistributed(Dense(num_motifs, activation='relu')),
-        # MaxPooling1D(pool_length=w2, stride=w2),
-        # Bidirectional(LSTM(num_recurrent, dropout_W=0.1, dropout_U=0.1, return_sequences=True)),
-        # Dropout(dropout_rate),
-        # Flatten(),
-        # Dense(num_dense, activation='relu'),
-        # Dropout(dropout_rate),
-        # Dense(num_tfs, activation='sigmoid')
 
     def forward_one(self, x):
         # if self.device == "cuda":
@@ -447,20 +343,8 @@ n_classes = 2
 model = FactorNet(device=device, )
 model = model.to(device)
 
-# optimizer = AdamW(model.parameters(), lr=2e-5, correct_bias=False)
-# total_steps = len(train_data_loader) * EPOCHS
-# total_steps = len(pos_train_data_loader) * EPOCHS
 scheduler=''
-# scheduler = get_linear_schedule_with_warmup(
-#     optimizer,
-#     num_warmup_steps=0,
-#     num_training_steps=total_steps
-# )
 loss_fn=''
-# loss_fn = nn.CrossEntropyLoss().to(device)
-# loss_fn = nn.BCELoss().to(device)
-
-# optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 optimizer = torch.optim.Adam(model.parameters())
 
 
@@ -536,24 +420,12 @@ def train_epoch(
             features = d['review_text'].to(device)
             rev_comp_features = d['review_text_rev_comp'].to(device)
             targets = d["targets"].to(device)
-            # print('input_ids:', input_ids.shape)
-            # print('attention_mask:', attention_mask.shape)
-            # print('targets:', targets.shape); #exit(0)
-            # outputs = model(
-            #   input_ids=input_ids,
-            #   attention_mask=attention_mask
-            # )
             outputs = model(features, rev_comp_features).reshape(-1)
-            # print('outputs:', outputs.shape, targets.shape); exit(0)
             preds = (outputs >= 0.5).float() * 1
-            # print('preds:', preds); exit(0)
-            # _, preds = torch.max(outputs, dim=1)
-            # loss = loss_fn(outputs, targets)
             # use factornet loss function
             loss = F.binary_cross_entropy(outputs, targets.float())
 
             correct_predictions += torch.sum(preds == targets)
-            # correct_predictions = loss #+= torch.sum(preds == targets)
             losses.append(loss.item())
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -566,22 +438,13 @@ def train_epoch(
         losses = []
         correct_predictions = 0
 
-        # labels = torch.tensor([]).to(device)
-        # labelled_outputs = torch.tensor([]).to(device)
         ortho_losses = torch.tensor([]).to(device)
         ctr = 0
         batch_ctr = 1
         print('O_CTR:', O_CTR)
         for di, d in enumerate(ortho_data_loader):
-            # print('di:', di)
-            #
-            # print('di:', di, 'ctr:', ctr, 'batch_ctr:', batch_ctr, 'BATCH_SIZE:', BATCH_SIZE)
-
-            # if di > 200:
-            #     break
 
             if (di + 1) % BATCH_SIZE == 0:
-                # print('ctr:', ctr, 'batch_ctr:', batch_ctr)
                 batch_ctr += 1
 
 
@@ -635,63 +498,18 @@ def train_epoch(
             # ctr += 1
             # if ctr % BATCH_SIZE == 0:
             if batch_ctr % O_CTR == 1 and len(ortho_losses) > 1:
-                # print('labelled_outputs:', labelled_outputs)
-                # print('labels:', labels)
-                # labelled_loss = F.binary_cross_entropy(labelled_outputs, labels)
-                # print('labelled_loss:', labelled_loss)
-
-                # if batch_ctr % O_CTR == 0:
-                #     ortho_losses = torch.mean(ortho_losses, dim=0)
-                #     # print('ortho_losses:', ortho_losses); exit(0)
-                #
-                #     loss = labelled_loss + (beta * ortho_losses)
-                # else:
-                #     loss = labelled_loss
-
-                # print('ortho_losses:', len(ortho_losses))
 
                 loss = beta * torch.mean(ortho_losses, dim=0)
-
-                # preds = (labelled_outputs >= 0.5).float() * 1
-
-                # print('ctr:', ctr,
-                #       'O_CTR:', O_CTR,
-                #       'batch_ctr:', batch_ctr,
-                #       'ortho_losses:', ortho_losses,
-                #       'labelled_loss:', labelled_loss,
-                #       'loss:', loss)
-                # batch_stop = time.time()
-                # print('batch time:', batch_stop-batch_start)
-
-                # logging.debug('ctr: %s O_CTR: %s batch_ctr: %s ortho_losses: %s labelled_loss: %s loss: %s',
-                #               ctr, O_CTR, batch_ctr, ortho_losses, labelled_loss, loss)
-
-                # print('loss:', loss)
-
-                # batch_ctr += 1
-
-                # correct_predictions += torch.sum(preds == labels)
-                # correct_predictions = loss #+= torch.sum(preds == targets)
                 losses.append(loss.item())
                 loss.backward()
-                # nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
                 optimizer.step()
-                # scheduler.step()
                 optimizer.zero_grad()
-
-                # reset containers
-                # labels = torch.tensor([]).to(device)
-                # labelled_outputs = torch.tensor([]).to(device)
                 ortho_losses = torch.tensor([]).to(device)
 
                 ctr += 1
 
             if ctr+1 % 100 == 0:
                 break
-
-        # exit(0)
-
-        # return correct_predictions.double() / n_examples, np.mean(losses)
         return 0, np.mean(losses)
 
 
@@ -701,19 +519,9 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
     correct_predictions = 0
     with torch.no_grad():
         for d in data_loader:
-            # input_ids = d["input_ids"].to(device)
-            # attention_mask = d["attention_mask"].to(device)
             features = d['review_text'].to(device)
             rev_comp_features = d['review_text_rev_comp'].to(device)
             targets = d["targets"].to(device)
-            # outputs = model(
-            #   input_ids=input_ids,
-            #   attention_mask=attention_mask
-            # )
-
-            # outputs = model(features)
-            # _, preds = torch.max(outputs, dim=1)
-            # loss = loss_fn(outputs, targets)
 
             outputs = model(features, rev_comp_features).reshape(-1)
             preds = (outputs >= 0.5).float() * 1
@@ -769,14 +577,6 @@ for epoch in range(EPOCHS):
         len(val_df)
     )
     print(f'Val   loss {val_loss} accuracy {val_acc}')
-    # test_acc, test_loss = eval_model(
-    #     model,
-    #     test_data_loader,
-    #     loss_fn,
-    #     device,
-    #     len(test_df)
-    # )
-    # print(f'Test   loss {test_loss} accuracy {test_acc}')
     print()
     history['train_acc'].append(train_acc)
     history['train_loss'].append(train_loss)
@@ -792,165 +592,3 @@ for epoch in range(EPOCHS):
 
 print('best_epoch:', best_epoch, 'best_accuracy:', best_accuracy, 'best_loss:', best_loss)
 
-exit(0)
-# test_acc, _ = eval_model(
-#   model,
-#   test_data_loader,
-#   loss_fn,
-#   device,
-#   len(test_df)
-# )
-# print()
-# print('Test ACC:', test_acc.item())
-
-model.load_state_dict(torch.load(model_pth))
-test_acc, _ = eval_model(
-  model,
-  test_data_loader,
-  loss_fn,
-  device,
-  len(test_df)
-)
-print()
-print('Test ACC:', test_acc.item())
-
-exit(0)
-
-pred_fname = open(pred_file, 'w')
-
-def process_seq(sequences, device, max_len=1000):
-  mapper = {'A': [True, False, False, False],
-            'C': [False, True, False, False],
-            'G': [False, False, True, False],
-            'T': [False, False, False, True],
-            'P': [False, False, False, False]
-            }
-  rev_comp_mapper = {'A': 'T',
-                     'C': 'G',
-                     'G': 'C',
-                     'T': 'A'
-                     }
-
-  # given_seq = sequences.copy()
-  # fix length to max len
-
-  # compute rev comp seq
-  rev_comp_sequences = [''.join([rev_comp_mapper[item] for item in seq[::-1]]) for seq in sequences]
-
-
-  sequences = [seq + ('P' * (max_len - len(seq))) \
-                 if len(seq) <= 1000 \
-                 else seq[:1000] \
-               for seq in sequences]
-
-
-  padded_rev_comp_seq = [rev_comp_seq + ('P' * (max_len - len(rev_comp_seq))) \
-                             if len(rev_comp_seq) <= max_len \
-                             else rev_comp_seq[:max_len] \
-                         for rev_comp_seq in rev_comp_sequences]
-  # features
-  feature_rev_comp = np.stack(
-      [np.array([mapper[item] for item in padded_rev_comp_seq_item], dtype=np.bool_).reshape(-1, 4).T \
-       for padded_rev_comp_seq_item in padded_rev_comp_seq])
-
-  # for i, seq in enumerate(sequences):
-  #     print('seq:', len(seq), len(given_seq[i]))
-
-  # get features
-  features = np.stack([np.array([mapper[item] for item in seq]).reshape(-1, 4).T for seq in sequences])
-  return torch.tensor(features, dtype=torch.float).to(device), torch.tensor(feature_rev_comp, dtype=torch.float).to(device)
-
-
-model.load_state_dict(torch.load(model_pth))
-model.eval()
-BATCH_SIZE=5000
-batch = []
-for line in open(input_test):
-
-  # if 'hg38' not in line:
-  #   continue
-
-  batch.append(line.strip().split(','))
-
-  if len(batch) == BATCH_SIZE:
-
-    # get regions
-    region = [item[0] for item in batch]
-
-    # get species
-    species = [item[1] for item in batch]
-
-    # get labels
-    label = [1 if '-1-chr' in item[0] else 0 for item in batch]
-
-    # process sequence
-    sequences = [item[2] for item in batch]
-    features, features_rev_comp = process_seq(sequences, device)
-    outputs = model(features, features_rev_comp)
-    # preds = F.softmax(outputs, 1).cpu().detach().numpy()[:, -1]
-    preds = outputs.reshape(-1)
-
-    # report
-    for i in range(BATCH_SIZE):
-      # logging.debug('%s,%s,%s,%s', region[i], species[i], label[i], preds[i])
-      pred_fname.write(region[i]+','+species[i]+','+str(label[i])+','+str(preds[i].item())+'\n')
-    batch = []
-
-if batch:
-  # get regions
-  region = [item[0] for item in batch]
-
-  # get species
-  species = [item[1] for item in batch]
-
-  # get labels
-  label = [1 if '-1-chr' in item[0] else 0 for item in batch]
-
-  # process sequence
-  sequences = [item[2] for item in batch]
-  features, features_rev_comp = process_seq(sequences, device)
-  outputs = model(features, features_rev_comp)
-  # preds = F.softmax(outputs, 1).cpu().detach().numpy()[:, -1]
-  preds = outputs.reshape(-1)
-  # report
-  for i in range(len(batch)):
-    # logging.debug('%s,%s,%s,%s', region[i], species[i], label[i], preds[i])
-    pred_fname.write(region[i] + ',' + species[i] + ',' + str(label[i]) + ',' + str(preds[i].item())+'\n')
-
-
-exit(0)
-
-
-def get_predictions(model, data_loader):
-    model = model.eval()
-    review_texts = []
-    predictions = []
-    prediction_probs = []
-    real_values = []
-    with torch.no_grad():
-        for d in data_loader:
-            texts = d["review_text"]
-            input_ids = d["input_ids"].to(device)
-            attention_mask = d["attention_mask"].to(device)
-            targets = d["targets"].to(device)
-            outputs = model(
-                input_ids=input_ids,
-                attention_mask=attention_mask
-            )
-            _, preds = torch.max(outputs, dim=1)
-            review_texts.extend(texts)
-            predictions.extend(preds)
-            prediction_probs.extend(outputs)
-            real_values.extend(targets)
-    predictions = torch.stack(predictions).cpu()
-    prediction_probs = torch.stack(prediction_probs).cpu()
-    real_values = torch.stack(real_values).cpu()
-    return review_texts, predictions, prediction_probs, real_values
-
-
-y_review_texts, y_pred, y_pred_probs, y_test = get_predictions(
-    model,
-    test_data_loader
-)
-
-print(classification_report(y_test, y_pred, target_names=class_names))
