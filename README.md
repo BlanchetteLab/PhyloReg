@@ -1,5 +1,8 @@
 # Phylogenetic Manifold Regularization
-This repo presents codes for generating results with phylogenetic manifold regularization
+This repo presents codes for generating results with phylogenetic manifold regularization presented in the paper "Phylogenetic Manifold Regularization: Asemi-supervised approach to predict transcriptionfactor binding sites"
+
+# Dependencies
+Python 3.7.3
 
 ## Experiments with Simulated Datasets
 To get the available options
