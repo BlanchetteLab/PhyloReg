@@ -30,6 +30,8 @@ We extended the 101 bps regions to 1001 bps because factornet is designed for in
 
 To get the available options
 
+`time python expt_factornet.py -h`
+
 To run the model with the data provided in this repository
 
 To evaluate 
