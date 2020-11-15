@@ -18,32 +18,18 @@ To run 10 experiments for the assessment of phylogenetic regularization in the e
 `time python -W ignore expt_sim.py --dim 10 --num-examples 10 --sel 100 --num-nodes 7 --repeat 10 `
 
 ## Experiments with ChIP-Seq Datasets
-
-We observed that dropout was not helpful
+We show the efficiency of PhyloReg by showing improvement in AUROC score for a hybrid RNN-CNN architecture called Factornet proposed by Quang et al. D.  Quang  and  X.  Xie,  “Factornet:  a  deep  learning  framework  forpredicting cell type specific transcription factor binding from nucleotide-resolution sequential data,”Methods, vol. 166, pp. 40–47, 2019.
 
 ### Data sets
 We use the ChipSeq data available at 
-`http://cnn.csail.mit.edu/motif_occupancy/`
-The training regions overlapping with test regions are removed
-1. the original files
--- subtract test regions from original train regions
-2. add 50 bps on both sides and then remove the overlapping regions
+`http://cnn.csail.mit.edu/motif_occupancy/` , where each ChIP-Seq experiment consist of train and test sets of 101 bps in hg19 reference genome.
 
-***before liftover subtract 1 position in hg19 
+We extended the 101 bps regions to 1001 bps because factornet is designed for input size of 1000 bps, much larger than 101 bps and the binding sites in orthologous regions might be located in neighbor regions. The data processing is described in our paper. The processed data is available at 
 
-Split chromosome file into non-overlapping files (for both 1 and 2)
+### Running Factornet with PhyloReg
 
-Create big bed file for each chromosome
+To get the available options
 
-TO DO
-1. create just hg19 train and hg19 test bed files
-2. format the hg19 bed files with one position subtracted in the start
-3. liftover hg19 to hg38 
-[should be present in the github] 
-[using liftover gives unmapped regions as well (splits, missing etc), alt chrom are ignored]
-4. create big bed file
-5. separate by chromosomes
-6. create part files for chromosomes
-7. run maf region
-8. aggregate maf regions
-9. final files [should be present in the github]
+To run the model with the data provided in this repository
+
+To evaluate 
