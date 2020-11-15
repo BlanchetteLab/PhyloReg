@@ -5,7 +5,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from collections import defaultdict
 from torch import nn, optim
 from torch.utils.data import Dataset, DataLoader
-import swifter, pickle
+import pickle
 import sys, random
 import torch.nn.functional as F
 from tqdm import tqdm
@@ -99,7 +99,7 @@ def get_df(fname, species='hg38', mode=''):
         df = df[df[1]=='hg38']
     print('df:', df.shape)
 
-    df['label'] = df[0].swifter.apply(lambda x: 1 if '-1-chr' in x else 0,
+    df['label'] = df[0].apply(lambda x: 1 if '-1-chr' in x else 0,
                                       axis=1)
 
     num_pos = df[df['label']==1].shape[0]
@@ -129,24 +129,24 @@ def get_df(fname, species='hg38', mode=''):
     max_len = 1000
 
     df['fixed_len_seq'] = df[2]. \
-        swifter.apply(lambda x: x + ('P' * (1000 - len(x))) if len(x) <= 1000 else x[:1000])
+        apply(lambda x: x + ('P' * (1000 - len(x))) if len(x) <= 1000 else x[:1000])
 
     # get features
     df['features'] = df['fixed_len_seq']. \
-        swifter.apply(lambda row: np.array([mapper[item] for item in row], dtype=np.bool_).reshape(-1, 4).T)
+        apply(lambda row: np.array([mapper[item] for item in row], dtype=np.bool_).reshape(-1, 4).T)
 
     # get rev comp
     df['rev_comp'] = df[2]. \
-        swifter.apply(lambda x: x[::-1])
+        apply(lambda x: x[::-1])
 
     df['rev_comp'] = df['rev_comp']. \
-        swifter.apply(lambda x: ''.join([rev_comp_mapper[item] for item in x]))
+        apply(lambda x: ''.join([rev_comp_mapper[item] for item in x]))
 
     df['rev_comp_fixed_len_seq'] = df['rev_comp']. \
-        swifter.apply(lambda x: x + ('P' * (1000 - len(x))) if len(x) <= 1000 else x[:1000])
+        apply(lambda x: x + ('P' * (1000 - len(x))) if len(x) <= 1000 else x[:1000])
 
     df['rev_comp_features'] = df['rev_comp_fixed_len_seq']. \
-        swifter.apply(lambda row: np.array([mapper[item] for item in row], dtype=np.bool_).reshape(-1, 4).T)
+        apply(lambda row: np.array([mapper[item] for item in row], dtype=np.bool_).reshape(-1, 4).T)
 
     return df
 
