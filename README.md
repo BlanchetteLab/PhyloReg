@@ -3,6 +3,7 @@ This repo presents codes for generating results with phylogenetic manifold regul
 
 ## Dependencies
 Python 3.7.3
+`pip install -R requirements.txt`
 
 ## Experiments with Simulated Datasets
 To get the available options
